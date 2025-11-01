@@ -1,1 +1,133 @@
+package employee.management.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.ResultSet;
+
+public class Login extends JFrame implements ActionListener {
+
+    JTextField tusername;
+    JPasswordField tpassword;
+    JButton login, back, register;
+
+    Login() {
+
+        // 🖼 Background Image
+        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icons/LoginB.jpg"));
+        Image i2 = i1.getImage().getScaledInstance(800, 400, Image.SCALE_SMOOTH);
+        JLabel img = new JLabel(new ImageIcon(i2));
+        img.setBounds(0, 0, 800, 400);
+        add(img);
+
+        // 🧾 Login Labels and Fields
+        JLabel username = new JLabel("Username");
+        username.setBounds(60, 80, 100, 30);
+        username.setFont(new Font("Tahoma", Font.BOLD, 14));
+        username.setForeground(Color.WHITE);
+        img.add(username);
+
+        tusername = new JTextField();
+        tusername.setBounds(160, 80, 150, 30);
+        img.add(tusername);
+
+        JLabel password = new JLabel("Password");
+        password.setBounds(60, 130, 100, 30);
+        password.setFont(new Font("Tahoma", Font.BOLD, 14));
+        password.setForeground(Color.WHITE);
+        img.add(password);
+
+        tpassword = new JPasswordField();
+        tpassword.setBounds(160, 130, 150, 30);
+        img.add(tpassword);
+
+        // 🧩 Buttons
+        login = new JButton("LOGIN");
+        login.setBounds(60, 200, 100, 30);
+        styleButton(login, new Color(0, 153, 76));
+        img.add(login);
+
+        register = new JButton("REGISTER");
+        register.setBounds(180, 200, 110, 30);
+        styleButton(register, new Color(0, 102, 204));
+        img.add(register);
+
+        back = new JButton("EXIT");
+        back.setBounds(310, 200, 80, 30);
+        styleButton(back, new Color(204, 0, 0));
+        img.add(back);
+
+        // 🖼 Right-side Image (Bigger now)
+        ImageIcon i11 = new ImageIcon(ClassLoader.getSystemResource("icons/second.jpg"));
+        // 👇 increase the scaling size
+        Image i22 = i11.getImage().getScaledInstance(650, 550, Image.SCALE_SMOOTH);
+        JLabel imgg = new JLabel(new ImageIcon(i22));
+        imgg.setBounds(450, -10, 650, 550); // shifted slightly to fill right space
+        img.add(imgg);
+
+        // 🪟 Frame Setup
+        setSize(700, 350);
+        setLocation(400, 200);
+        setLayout(null);
+        setVisible(true);
+        setResizable(false);
+        setTitle("Employee Login - EMS");
+
+        login.addActionListener(this);
+        register.addActionListener(this);
+        back.addActionListener(this);
+    }
+
+    private void styleButton(JButton btn, Color color) {
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setFocusPainted(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(color.darker());
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(color);
+            }
+        });
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == login) {
+            try {
+                String username = tusername.getText();
+                String password = tpassword.getText();
+
+                conn conn = new conn();
+                String query = "select * from login where username='" + username + "' and password='" + password + "'";
+                ResultSet rs = conn.statement.executeQuery(query);
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(null, "Login Successful!");
+                    setVisible(false);
+                    new Main_class();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Invalid Username or Password");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        } else if (e.getSource() == register) {
+            setVisible(false);
+            new Register();
+
+        } else if (e.getSource() == back) {
+            System.exit(0);
+        }
+    }
+
+    public static void main(String[] args) {
+        new Login();
+    }
+}
 
