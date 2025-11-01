@@ -1,1 +1,491 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Patient Registration Form</title>
+
+  <style>
+    :root{
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --accent: #0f6cff;
+      --muted: #6b7280;
+      --danger: #e02424;
+      --success: #059669;
+      --radius: 12px;
+      --shadow: 0 6px 18px rgba(15,20,40,0.08);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#e9f0ff 0%,var(--bg) 60%);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      color:#111827;
+    }
+
+    .container{
+      width:100%;
+      max-width:940px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:0;
+    }
+
+    .left {
+      padding:28px;
+      background: linear-gradient(180deg, rgba(15,108,255,0.06), rgba(15,108,255,0.02));
+      border-right:1px solid rgba(15,20,40,0.04);
+    }
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:52px;height:52px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),#45b0ff);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;
+      box-shadow: 0 6px 20px rgba(15,108,255,0.12);
+    }
+    h1{font-size:20px;margin:0 0 6px 0;}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    form{padding:24px 28px;display:grid;gap:12px;background:transparent}
+
+    .field-row{
+      display:flex;gap:12px;
+    }
+    .field{
+      display:flex;flex-direction:column;
+    }
+    label{font-size:13px;color:#0f1724;margin-bottom:6px}
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea, input[type="number"], input[type="time"]{
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid #e6e9ef;
+      background:white;
+      min-width:0;
+      font-size:14px;
+    }
+    textarea{resize:vertical;min-height:86px;padding-top:10px}
+
+    .small{font-size:12px;color:var(--muted)}
+    .btn-row{display:flex;gap:10px;align-items:center;margin-top:6px}
+    button{
+      padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:600;cursor:pointer;
+      box-shadow: 0 6px 14px rgba(15,108,255,0.12);
+    }
+    button.ghost{background:transparent;border:1px solid #e6e9ef;color:var(--muted);box-shadow:none}
+    .danger{background:var(--danger)}
+    .success{background:var(--success)}
+
+    /* Responsive */
+    @media (max-width:920px){
+      .container{grid-template-columns:1fr; padding:12px}
+      .left{order:2}
+      form{order:1}
+    }
+
+    /* summary modal */
+    .modal {
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;
+      transition:all .18s ease;
+      background:rgba(10,12,20,0.35);backdrop-filter:blur(4px);
+    }
+    .modal.open{visibility:visible;opacity:1}
+    .modal-card{
+      width:92%;max-width:680px;background:var(--card);border-radius:14px;padding:18px;box-shadow:var(--shadow);
+    }
+    .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .tag{font-size:12px;color:var(--muted)}
+    .field-value{font-weight:600;color:#0f1724}
+
+    .form-note{font-size:12px;color:var(--muted);margin-top:6px}
+    .error{color:var(--danger);font-size:12px;margin-top:6px}
+  </style>
+</head>
+<body>
+
+  <div class="container" role="main" aria-labelledby="title">
+    <aside class="left" aria-hidden="false">
+      <div class="brand">
+        <div class="logo">H+</div>
+        <div>
+          <h1 id="title">Patient Registration</h1>
+          <p class="lead">Kripya sahi details bharein — sab fields client-side validate honge.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <p class="small"><strong>Tip:</strong> Submit karne par aapko ek summary dikhai degi. Aap data JSON download bhi kar sakte hain.</p>
+        <hr style="margin:16px 0;border:none;height:1px;background:#eef3ff">
+        <p class="small"><strong>Privacy:</strong> Yeh demo local hai — server pe bhejne ke liye aapko backend integrate karna padega.</p>
+      </div>
+    </aside>
+
+    <form id="patientForm" novalidate>
+      <!-- Row 1 -->
+      <div class="field-row">
+        <div class="field" style="flex:1">
+          <label for="fullname">Full Name *</label>
+          <input id="fullname" name="fullname" type="text" placeholder="Example: Rahul Kumar" required>
+        </div>
+
+        <div class="field" style="width:120px">
+          <label for="gender">Gender *</label>
+          <select id="gender" name="gender" required>
+            <option value="">--Select--</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="field-row">
+        <div class="field" style="width:170px">
+          <label for="dob">Date of Birth *</label>
+          <input id="dob" name="dob" type="date" required>
+        </div>
+
+        <div class="field" style="width:120px">
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="0" placeholder="Auto" readonly>
+        </div>
+
+        <div class="field" style="flex:1">
+          <label for="blood">Blood Group</label>
+          <select id="blood" name="blood">
+            <option value="">--Select--</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="field-row">
+        <div class="field" style="flex:1">
+          <label for="contact">Contact No. *</label>
+          <input id="contact" name="contact" type="tel" placeholder="e.g. 9876543210" required>
+        </div>
+        <div class="field" style="flex:1">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="example@mail.com">
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="field">
+        <label for="address">Address</label>
+        <textarea id="address" name="address" placeholder="Street, City, State, PIN"></textarea>
+      </div>
+
+      <!-- Emergency & Insurance -->
+      <div class="field-row">
+        <div class="field" style="flex:1">
+          <label for="emergencyName">Emergency Contact Name</label>
+          <input id="emergencyName" name="emergencyName" type="text" placeholder="e.g. Father/Mother">
+        </div>
+        <div class="field" style="flex:1">
+          <label for="emergencyNo">Emergency Contact No.</label>
+          <input id="emergencyNo" name="emergencyNo" type="tel" placeholder="e.g. 9876543210">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" style="flex:1">
+          <label for="insurance">Insurance Provider</label>
+          <input id="insurance" name="insurance" type="text" placeholder="Provider name">
+        </div>
+        <div class="field" style="flex:1">
+          <label for="policy">Policy Number</label>
+          <input id="policy" name="policy" type="text" placeholder="Policy No.">
+        </div>
+      </div>
+
+      <!-- Medical history -->
+      <div class="field">
+        <label for="allergies">Allergies / Allergic to</label>
+        <input id="allergies" name="allergies" type="text" placeholder="e.g. Penicillin, Pollen">
+      </div>
+
+      <div class="field">
+        <label for="history">Past Medical History / Chronic Diseases</label>
+        <textarea id="history" name="history" placeholder="e.g. Diabetes, Hypertension, Surgeries..."></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field" style="flex:1">
+          <label for="meds">Current Medications</label>
+          <input id="meds" name="meds" type="text" placeholder="List current meds">
+        </div>
+
+        <div class="field" style="flex:1">
+          <label for="doctor">Referred / Preferred Doctor</label>
+          <input id="doctor" name="doctor" type="text" placeholder="Doctor name (optional)">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" style="width:180px">
+          <label for="appointDate">Appointment Date</label>
+          <input id="appointDate" name="appointDate" type="date">
+        </div>
+        <div class="field" style="width:140px">
+          <label for="appointTime">Time</label>
+          <input id="appointTime" name="appointTime" type="time">
+        </div>
+        <div class="field" style="flex:1">
+          <label for="room">Room / Ward (if known)</label>
+          <input id="room" name="room" type="text" placeholder="Optional">
+        </div>
+      </div>
+
+      <div class="field-row" style="align-items:center; margin-top:8px">
+        <div style="flex:1">
+          <label for="consent">
+            <input id="consent" name="consent" type="checkbox" required> &nbsp;
+            I confirm that the above information is correct *
+          </label>
+          <div id="consentError" class="error" style="display:none">Aapko checkbox select karna zaroori hai.</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" id="previewBtn">Preview</button>
+        <button type="submit" class="success">Submit</button>
+        <button type="button" class="ghost" id="resetBtn">Reset</button>
+      </div>
+
+      <p class="form-note">* Required fields. Ye form sirf client-side demo ke liye hai — backend ke liye AJAX/Fetch add karein.</p>
+    </form>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" role="document">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">Patient Summary</h3>
+        <div>
+          <button id="downloadJson" class="ghost" style="margin-right:8px">Download JSON</button>
+          <button id="closeModal" class="ghost">Close</button>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;height:1px;background:#eef3ff">
+
+      <div id="summaryContent" class="summary-grid" style="gap:10px"></div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="modalSubmit" class="success">Confirm & Save</button>
+        <button id="modalCancel" class="ghost">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper selectors
+    const form = document.getElementById('patientForm');
+    const dob = document.getElementById('dob');
+    const ageIn = document.getElementById('age');
+    const previewBtn = document.getElementById('previewBtn');
+    const modal = document.getElementById('modal');
+    const summaryContent = document.getElementById('summaryContent');
+    const closeModal = document.getElementById('closeModal');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalSubmit = document.getElementById('modalSubmit');
+    const downloadJson = document.getElementById('downloadJson');
+    const consentError = document.getElementById('consentError');
+
+    // Auto-calc age from DOB
+    dob.addEventListener('change', () => {
+      const val = dob.value;
+      if(!val){ ageIn.value = ''; return; }
+      const birth = new Date(val);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+      ageIn.value = age >= 0 ? age : '';
+    });
+
+    // Basic validators
+    function validateForm(showErrors = true){
+      consentError.style.display = 'none';
+      // built-in browser validity for required fields
+      if(!form.checkValidity()){
+        if(showErrors){
+          // trigger built-in UI messages
+          const firstInvalid = form.querySelector(':invalid');
+          firstInvalid.focus();
+          firstInvalid.reportValidity();
+        }
+        return false;
+      }
+
+      // Custom contact validation (10 digit Indian mobile example)
+      const contact = document.getElementById('contact').value.trim();
+      if(contact && !/^\d{10}$/.test(contact)){
+        if(showErrors){
+          alert('Contact number must be 10 digits (numbers only).');
+          document.getElementById('contact').focus();
+        }
+        return false;
+      }
+
+      // Emergency contact similar check (if provided)
+      const em = document.getElementById('emergencyNo').value.trim();
+      if(em && !/^\d{10}$/.test(em)){
+        if(showErrors){
+          alert('Emergency contact must be 10 digits (numbers only).');
+          document.getElementById('emergencyNo').focus();
+        }
+        return false;
+      }
+
+      // Consent checkbox
+      if(!document.getElementById('consent').checked){
+        if(showErrors) consentError.style.display = 'block';
+        return false;
+      }
+
+      return true;
+    }
+
+    // Gather data from form
+    function gatherData(){
+      const fd = new FormData(form);
+      const obj = {};
+      fd.forEach((v,k)=> obj[k] = v?.trim ? v.trim() : v);
+      // keep computed age
+      obj.age = ageIn.value || '';
+      return obj;
+    }
+
+    // Render summary into modal
+    function renderSummary(data){
+      summaryContent.innerHTML = '';
+      const map = [
+        ['Full name', data.fullname],
+        ['Gender', data.gender],
+        ['DOB', data.dob],
+        ['Age', data.age],
+        ['Blood Group', data.blood],
+        ['Contact', data.contact],
+        ['Email', data.email],
+        ['Address', data.address],
+        ['Emergency Contact', data.emergencyName + (data.emergencyNo ? ' — ' + data.emergencyNo : '')],
+        ['Insurance', (data.insurance || '') + (data.policy ? (' — ' + data.policy) : '')],
+        ['Allergies', data.allergies],
+        ['Medical history', data.history],
+        ['Current meds', data.meds],
+        ['Preferred doctor', data.doctor],
+        ['Appointment', (data.appointDate ? data.appointDate : '') + (data.appointTime ? ' ' + data.appointTime : '')],
+        ['Room/Ward', data.room]
+      ];
+      map.forEach(([k,v])=>{
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `<div class="tag">${k}</div><div class="field-value">${v || '-'}</div>`;
+        summaryContent.appendChild(wrap);
+      });
+    }
+
+    // Open modal
+    function openModal(){
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModalFn(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    // Preview button
+    previewBtn.addEventListener('click', () => {
+      if(!validateForm(true)) return;
+      const data = gatherData();
+      renderSummary(data);
+      openModal();
+    });
+
+    // Form submit (final)
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if(!validateForm(true)) return;
+
+      const data = gatherData();
+      renderSummary(data);
+      openModal();
+    });
+
+    // Modal controls
+    closeModal.addEventListener('click', closeModalFn);
+    modalCancel.addEventListener('click', closeModalFn);
+
+    // Confirm & Save: here we just simulate saving and allow JSON download
+    modalSubmit.addEventListener('click', () => {
+      const data = gatherData();
+      // Simulate save: in production do fetch('/api/save', {method:'POST', body: JSON.stringify(data)})
+      closeModalFn();
+      alert('Patient details saved locally (demo). Ab aap JSON download kar sakte hain.');
+      // Offer JSON file download automatically
+      downloadDataAsJson(data);
+    });
+
+    // Download JSON helpers
+    function downloadDataAsJson(obj){
+      const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (obj.fullname ? obj.fullname.replace(/\s+/g,'_') : 'patient') + '_data.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    downloadJson.addEventListener('click', ()=>{
+      const data = gatherData();
+      downloadDataAsJson(data);
+    });
+
+    // Reset button
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(confirm('Form reset karna hai?')) form.reset();
+      ageIn.value = '';
+      consentError.style.display = 'none';
+    });
+
+    // Accessibility: close modal on Escape
+    document.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Escape' && modal.classList.contains('open')) closeModalFn();
+    });
+
+    // Prevent accidental navigation (demo)
+    let formChanged = false;
+    form.addEventListener('input', ()=> formChanged = true);
+    window.addEventListener('beforeunload', (e)=>{
+      if(formChanged){
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>
 
